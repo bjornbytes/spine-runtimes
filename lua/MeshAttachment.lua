@@ -28,7 +28,7 @@
 -- ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------------
 
-local AttachmentType = require "spine-lua.AttachmentType"
+local AttachmentType = require "lib/deps/spine/lua/AttachmentType"
 
 local MeshAttachment = {}
 function MeshAttachment.new (name)
