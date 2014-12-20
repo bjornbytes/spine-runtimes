@@ -59,7 +59,7 @@ spine.utils.readFile = function (fileName, base)
 	return love.filesystem.read(path)
 end
 
-local json = require "spine-love.dkjson"
+local json = require "lib/deps/dkjson"
 spine.utils.readJSON = function (text)
 	return json.decode(text)
 end
