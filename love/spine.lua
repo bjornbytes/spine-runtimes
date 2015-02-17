@@ -46,6 +46,8 @@ spine.Slot = require "lib/deps/spine/lua/Slot"
 spine.IkConstraint = require "lib/deps/spine/lua/IkConstraint"
 spine.AttachmentType = require "lib/deps/spine/lua/AttachmentType"
 spine.AttachmentLoader = require "lib/deps/spine/lua/AttachmentLoader"
+spine.AtlasAttachmentLoader = require "lib/deps/spine/lua/AtlasAttachmentLoader"
+spine.Atlas = require "lib/deps/spine/lua/Atlas"
 spine.Animation = require "lib/deps/spine/lua/Animation"
 spine.AnimationStateData = require "lib/deps/spine/lua/AnimationStateData"
 spine.AnimationState = require "lib/deps/spine/lua/AnimationState"
@@ -80,6 +82,9 @@ function spine.Skeleton.new (skeletonData, group)
 	function self:updateWorldTransform ()
 		updateWorldTransform_super(self)
 
+    if not self.quads then self.quads = {} end
+    local quads = self.quads
+
 		if not self.images then self.images = {} end
 		local images = self.images
 
@@ -91,38 +96,59 @@ function spine.Skeleton.new (skeletonData, group)
 			if not attachment then
 				images[slot] = nil
 			elseif attachment.type == spine.AttachmentType.region then
-				local image = images[slot]
-				if image and attachments[image] ~= attachment then -- Attachment image has changed.
-					image = nil
-				end
-				if not image then -- Create new image.
-					image = self:createImage(attachment)
-					if image then
-						local imageWidth = image:getWidth()
-						local imageHeight = image:getHeight()
-						attachment.widthRatio = attachment.width / imageWidth
-						attachment.heightRatio = attachment.height / imageHeight
-						attachment.originX = imageWidth / 2
-						attachment.originY = imageHeight / 2
-					else
-						image = spine.Skeleton.failed
-					end
-					images[slot] = image
-					attachments[image] = attachment
-				end
+
+        if attachment.rendererObject then -- Quad
+          local page = attachment.rendererObject.page
+          page.image = page.image or self:createAtlasImage(page)
+          local quad = quads[slot]
+          if not quad then
+            local x1, y1, x2, y2 = unpack(attachment.uvs)
+            local w, h = page.image:getDimensions()
+            quad = love.graphics.newQuad(x1 * w, y1 * h, (x2 - x1) * w, (y2 - y1) * h, w, h)
+            attachment.widthRatio = attachment.width / attachment.regionWidth
+            attachment.heightRatio = attachment.height / attachment.regionHeight
+            attachment.originX = attachment.regionWidth / 2
+            attachment.originY = attachment.regionHeight / 2
+          end
+          quads[slot] = quad
+        else -- Image
+
+          local image = images[slot]
+          if image and attachments[image] ~= attachment then -- Attachment image has changed.
+            image = nil
+          end
+          if not image then -- Create new image.
+            image = self:createImage(attachment)
+            if image then
+              local imageWidth = image:getWidth()
+              local imageHeight = image:getHeight()
+              attachment.widthRatio = attachment.width / imageWidth
+              attachment.heightRatio = attachment.height / imageHeight
+              attachment.originX = imageWidth / 2
+              attachment.originY = imageHeight / 2
+            else
+              image = spine.Skeleton.failed
+            end
+            images[slot] = image
+            attachments[image] = attachment
+          end
+        end
 			end
 		end
 	end
 
 	function self:draw()
 		if not self.images then self.images = {} end
+		if not self.quads then self.quads = {} end
 		local images = self.images
+    local quads = self.quads
 
 		local r, g, b, a = self.r * 255, self.g * 255, self.b * 255, self.a * 255
 
 		for i,slot in ipairs(self.drawOrder) do
 			local image = images[slot]
-			if image and image ~= spine.Skeleton.failed then
+      local quad = quads[slot]
+      if quad then
 				local attachment = slot.attachment
 				local x = slot.bone.worldX + attachment.x * slot.bone.m00 + attachment.y * slot.bone.m01
 				local y = slot.bone.worldY + attachment.x * slot.bone.m10 + attachment.y * slot.bone.m11
@@ -143,9 +169,39 @@ function spine.Skeleton.new (skeletonData, group)
 				else
 					love.graphics.setBlendMode("alpha")
 				end
-				love.graphics.draw(image, 
-					self.x + x, 
-					self.y - y, 
+				love.graphics.draw(slot.attachment.rendererObject.page.image,
+          quad,
+					self.x + x,
+					self.y - y,
+					-rotation * 3.1415927 / 180,
+					xScale * attachment.widthRatio,
+					yScale * attachment.heightRatio,
+					attachment.originX,
+					attachment.originY)
+      elseif image and image ~= spine.Skeleton.failed then
+				local attachment = slot.attachment
+				local x = slot.bone.worldX + attachment.x * slot.bone.m00 + attachment.y * slot.bone.m01
+				local y = slot.bone.worldY + attachment.x * slot.bone.m10 + attachment.y * slot.bone.m11
+				local rotation = slot.bone.worldRotation + attachment.rotation
+				local xScale = slot.bone.worldScaleX + attachment.scaleX - 1
+				local yScale = slot.bone.worldScaleY + attachment.scaleY - 1
+				if self.flipX then
+					xScale = -xScale
+					rotation = -rotation
+				end
+				if self.flipY then
+					yScale = -yScale
+					rotation = -rotation
+				end
+				love.graphics.setColor(r * slot.r, g * slot.g, b * slot.b, a * slot.a)
+				if slot.data.additiveBlending then
+					love.graphics.setBlendMode("additive")
+				else
+					love.graphics.setBlendMode("alpha")
+				end
+				love.graphics.draw(image,
+					self.x + x,
+					self.y - y,
 					-rotation * 3.1415927 / 180,
 					xScale * attachment.widthRatio,
 					yScale * attachment.heightRatio,
@@ -188,7 +244,7 @@ function spine.Skeleton.new (skeletonData, group)
 		end
 
 		-- Debug slots.
-		if self.debugSlots then
+		if self.debugSlots or true then
 			love.graphics.setColor(0, 0, 255, 128)
 			for i,slot in ipairs(self.drawOrder) do
 				local attachment = slot.attachment
