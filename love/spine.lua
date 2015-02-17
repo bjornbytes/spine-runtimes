@@ -174,7 +174,7 @@ function spine.Skeleton.new (skeletonData, group)
 					yScale = -yScale
 					rotation = -rotation
 				end
-				love.graphics.setColor(r * slot.r, g * slot.g, b * slot.b, a * slot.a)
+				self.spritebatch:setColor(r * slot.r, g * slot.g, b * slot.b, a * slot.a)
 				if slot.data.additiveBlending then
 					love.graphics.setBlendMode("additive")
 				else
@@ -285,6 +285,7 @@ function spine.Skeleton.new (skeletonData, group)
 
     if batching then
       self.spritebatch:unbind()
+      love.graphics.setColor(255, 255, 255)
       love.graphics.draw(self.spritebatch)
     end
 	end
