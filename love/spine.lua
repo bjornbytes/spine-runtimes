@@ -244,7 +244,7 @@ function spine.Skeleton.new (skeletonData, group)
 		end
 
 		-- Debug slots.
-		if self.debugSlots or true then
+		if self.debugSlots then
 			love.graphics.setColor(0, 0, 255, 128)
 			for i,slot in ipairs(self.drawOrder) do
 				local attachment = slot.attachment
