@@ -85,6 +85,9 @@ function spine.Skeleton.new (skeletonData, group)
     if not self.quads then self.quads = {} end
     local quads = self.quads
 
+    if not self.batchIds then self.batchIds = {} end
+    local batchIds = self.batchIds
+
 		if not self.images then self.images = {} end
 		local images = self.images
 
@@ -100,6 +103,7 @@ function spine.Skeleton.new (skeletonData, group)
         if attachment.rendererObject then -- Quad
           local page = attachment.rendererObject.page
           page.image = page.image or self:createAtlasImage(page)
+          self.spritebatch = self.spritebatch or love.graphics.newSpriteBatch(page.image, 32, 'stream')
           local quad = quads[slot]
           if not quad then
             local x1, y1, x2, y2 = unpack(attachment.uvs)
@@ -111,6 +115,7 @@ function spine.Skeleton.new (skeletonData, group)
             attachment.originY = attachment.regionHeight / 2
           end
           quads[slot] = quad
+          if not batchIds[quad] then batchIds[quad] = self.spritebatch:add(quad, 0, 0) end
         else -- Image
 
           local image = images[slot]
@@ -142,6 +147,8 @@ function spine.Skeleton.new (skeletonData, group)
 		if not self.quads then self.quads = {} end
 		local images = self.images
     local quads = self.quads
+    local batchIds = self.batchIds
+    local batching = false
 
 		local r, g, b, a = self.r * 255, self.g * 255, self.b * 255, self.a * 255
 
@@ -149,6 +156,10 @@ function spine.Skeleton.new (skeletonData, group)
 			local image = images[slot]
       local quad = quads[slot]
       if quad then
+        if not batching then
+          batching = true
+          self.spritebatch:bind()
+        end
 				local attachment = slot.attachment
 				local x = slot.bone.worldX + attachment.x * slot.bone.m00 + attachment.y * slot.bone.m01
 				local y = slot.bone.worldY + attachment.x * slot.bone.m10 + attachment.y * slot.bone.m11
@@ -169,15 +180,15 @@ function spine.Skeleton.new (skeletonData, group)
 				else
 					love.graphics.setBlendMode("alpha")
 				end
-				love.graphics.draw(slot.attachment.rendererObject.page.image,
+        self.spritebatch:set(batchIds[quad],
           quad,
-					self.x + x,
-					self.y - y,
-					-rotation * 3.1415927 / 180,
-					xScale * attachment.widthRatio,
-					yScale * attachment.heightRatio,
-					attachment.originX,
-					attachment.originY)
+          self.x + x,
+          self.y - y,
+          -rotation * 3.1415927 / 180,
+          xScale * attachment.widthRatio,
+          yScale * attachment.heightRatio,
+          attachment.originX,
+          attachment.originY)
       elseif image and image ~= spine.Skeleton.failed then
 				local attachment = slot.attachment
 				local x = slot.bone.worldX + attachment.x * slot.bone.m00 + attachment.y * slot.bone.m01
@@ -271,6 +282,11 @@ function spine.Skeleton.new (skeletonData, group)
 				end
 			end
 		end
+
+    if batching then
+      self.spritebatch:unbind()
+      love.graphics.draw(self.spritebatch)
+    end
 	end
 
 	return self
