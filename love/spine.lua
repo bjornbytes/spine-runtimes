@@ -161,34 +161,36 @@ function spine.Skeleton.new (skeletonData, group)
           self.spritebatch:bind()
         end
 				local attachment = slot.attachment
-				local x = slot.bone.worldX + attachment.x * slot.bone.m00 + attachment.y * slot.bone.m01
-				local y = slot.bone.worldY + attachment.x * slot.bone.m10 + attachment.y * slot.bone.m11
-				local rotation = slot.bone.worldRotation + attachment.rotation
-				local xScale = slot.bone.worldScaleX + attachment.scaleX - 1
-				local yScale = slot.bone.worldScaleY + attachment.scaleY - 1
-				if self.flipX then
-					xScale = -xScale
-					rotation = -rotation
-				end
-				if self.flipY then
-					yScale = -yScale
-					rotation = -rotation
-				end
-				self.spritebatch:setColor(r * slot.r, g * slot.g, b * slot.b, a * slot.a)
-				if slot.data.additiveBlending then
-					love.graphics.setBlendMode("additive")
-				else
-					love.graphics.setBlendMode("alpha")
-				end
-        self.spritebatch:set(batchIds[quad],
-          quad,
-          self.x + x,
-          self.y - y,
-          -rotation * 3.1415927 / 180,
-          xScale * attachment.widthRatio,
-          yScale * attachment.heightRatio,
-          attachment.originX,
-          attachment.originY)
+        if attachment then
+          local x = slot.bone.worldX + attachment.x * slot.bone.m00 + attachment.y * slot.bone.m01
+          local y = slot.bone.worldY + attachment.x * slot.bone.m10 + attachment.y * slot.bone.m11
+          local rotation = slot.bone.worldRotation + attachment.rotation
+          local xScale = slot.bone.worldScaleX + attachment.scaleX - 1
+          local yScale = slot.bone.worldScaleY + attachment.scaleY - 1
+          if self.flipX then
+            xScale = -xScale
+            rotation = -rotation
+          end
+          if self.flipY then
+            yScale = -yScale
+            rotation = -rotation
+          end
+          self.spritebatch:setColor(r * slot.r, g * slot.g, b * slot.b, a * slot.a)
+          if slot.data.additiveBlending then
+            love.graphics.setBlendMode("additive")
+          else
+            love.graphics.setBlendMode("alpha")
+          end
+          self.spritebatch:set(batchIds[quad],
+            quad,
+            self.x + x,
+            self.y - y,
+            -rotation * 3.1415927 / 180,
+            xScale * attachment.widthRatio,
+            yScale * attachment.heightRatio,
+            attachment.originX,
+            attachment.originY)
+        end
       elseif image and image ~= spine.Skeleton.failed then
 				local attachment = slot.attachment
 				local x = slot.bone.worldX + attachment.x * slot.bone.m00 + attachment.y * slot.bone.m01
