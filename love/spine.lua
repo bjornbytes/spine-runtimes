@@ -85,9 +85,6 @@ function spine.Skeleton.new (skeletonData, group)
     if not self.quads then self.quads = {} end
     local quads = self.quads
 
-    if not self.batchIds then self.batchIds = {} end
-    local batchIds = self.batchIds
-
 		if not self.images then self.images = {} end
 		local images = self.images
 
@@ -115,7 +112,6 @@ function spine.Skeleton.new (skeletonData, group)
             attachment.originY = attachment.regionHeight / 2
           end
           quads[slot] = quad
-          if not batchIds[quad] then batchIds[quad] = self.spritebatch:add(quad, 0, 0) end
         else -- Image
 
           local image = images[slot]
@@ -147,7 +143,6 @@ function spine.Skeleton.new (skeletonData, group)
 		if not self.quads then self.quads = {} end
 		local images = self.images
     local quads = self.quads
-    local batchIds = self.batchIds
     local batching = false
 
 		local r, g, b, a = self.r * 255, self.g * 255, self.b * 255, self.a * 255
@@ -158,6 +153,7 @@ function spine.Skeleton.new (skeletonData, group)
       if quad then
         if not batching then
           batching = true
+          self.spritebatch:clear()
           self.spritebatch:bind()
         end
 				local attachment = slot.attachment
@@ -181,8 +177,7 @@ function spine.Skeleton.new (skeletonData, group)
           else
             love.graphics.setBlendMode("alpha")
           end
-          self.spritebatch:set(batchIds[quad],
-            quad,
+          self.spritebatch:add(quad,
             self.x + x,
             self.y - y,
             -rotation * 3.1415927 / 180,
