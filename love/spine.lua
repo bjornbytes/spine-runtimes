@@ -95,6 +95,7 @@ function spine.Skeleton.new (skeletonData, group)
 			local attachment = slot.attachment
 			if not attachment then
 				images[slot] = nil
+        quads[slot] = nil
 			elseif attachment.type == spine.AttachmentType.region then
 
         if attachment.rendererObject then -- Quad
