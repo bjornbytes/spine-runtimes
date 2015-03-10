@@ -102,6 +102,16 @@ function spine.Skeleton.new (skeletonData, group)
           page.image = page.image or self:createAtlasImage(page)
           self.spritebatch = self.spritebatch or love.graphics.newSpriteBatch(page.image, 32, 'stream')
           local quad = quads[slot]
+          if quad then
+            local u1, v1, u2, v2 = unpack(attachment.uvs)
+            local qw, qh = page.image:getDimensions()
+            local x, y, w, h = u1 * qw, v1 * qh, (u2 - u1) * qw, (v2 - v1) * qh
+            local x2, y2, w2, h2 = quad:getViewport()
+            if x ~= x2 or y ~= y2 or w ~= w2 or h ~= h2 then
+              quad = nil
+            end
+          end
+
           if not quad then
             local x1, y1, x2, y2 = unpack(attachment.uvs)
             local w, h = page.image:getDimensions()
