@@ -30,30 +30,30 @@
 
 spine = {}
 
-spine.utils = require "lib/deps/spine/lua/utils"
-spine.SkeletonJson = require "lib/deps/spine/lua/SkeletonJson"
-spine.SkeletonData = require "lib/deps/spine/lua/SkeletonData"
-spine.BoneData = require "lib/deps/spine/lua/BoneData"
-spine.SlotData = require "lib/deps/spine/lua/SlotData"
-spine.IkConstraintData = require "lib/deps/spine/lua/IkConstraintData"
-spine.Skin = require "lib/deps/spine/lua/Skin"
-spine.RegionAttachment = require "lib/deps/spine/lua/RegionAttachment"
-spine.MeshAttachment = require "lib/deps/spine/lua/MeshAttachment"
-spine.SkinnedMeshAttachment = require "lib/deps/spine/lua/SkinnedMeshAttachment"
-spine.Skeleton = require "lib/deps/spine/lua/Skeleton"
-spine.Bone = require "lib/deps/spine/lua/Bone"
-spine.Slot = require "lib/deps/spine/lua/Slot"
-spine.IkConstraint = require "lib/deps/spine/lua/IkConstraint"
-spine.AttachmentType = require "lib/deps/spine/lua/AttachmentType"
-spine.AttachmentLoader = require "lib/deps/spine/lua/AttachmentLoader"
-spine.AtlasAttachmentLoader = require "lib/deps/spine/lua/AtlasAttachmentLoader"
-spine.Atlas = require "lib/deps/spine/lua/Atlas"
-spine.Animation = require "lib/deps/spine/lua/Animation"
-spine.AnimationStateData = require "lib/deps/spine/lua/AnimationStateData"
-spine.AnimationState = require "lib/deps/spine/lua/AnimationState"
-spine.EventData = require "lib/deps/spine/lua/EventData"
-spine.Event = require "lib/deps/spine/lua/Event"
-spine.SkeletonBounds = require "lib/deps/spine/lua/SkeletonBounds"
+spine.utils = require "deps/spine/lua/utils"
+spine.SkeletonJson = require "deps/spine/lua/SkeletonJson"
+spine.SkeletonData = require "deps/spine/lua/SkeletonData"
+spine.BoneData = require "deps/spine/lua/BoneData"
+spine.SlotData = require "deps/spine/lua/SlotData"
+spine.IkConstraintData = require "deps/spine/lua/IkConstraintData"
+spine.Skin = require "deps/spine/lua/Skin"
+spine.RegionAttachment = require "deps/spine/lua/RegionAttachment"
+spine.MeshAttachment = require "deps/spine/lua/MeshAttachment"
+spine.SkinnedMeshAttachment = require "deps/spine/lua/SkinnedMeshAttachment"
+spine.Skeleton = require "deps/spine/lua/Skeleton"
+spine.Bone = require "deps/spine/lua/Bone"
+spine.Slot = require "deps/spine/lua/Slot"
+spine.IkConstraint = require "deps/spine/lua/IkConstraint"
+spine.AttachmentType = require "deps/spine/lua/AttachmentType"
+spine.AttachmentLoader = require "deps/spine/lua/AttachmentLoader"
+spine.AtlasAttachmentLoader = require "deps/spine/lua/AtlasAttachmentLoader"
+spine.Atlas = require "deps/spine/lua/Atlas"
+spine.Animation = require "deps/spine/lua/Animation"
+spine.AnimationStateData = require "deps/spine/lua/AnimationStateData"
+spine.AnimationState = require "deps/spine/lua/AnimationState"
+spine.EventData = require "deps/spine/lua/EventData"
+spine.Event = require "deps/spine/lua/Event"
+spine.SkeletonBounds = require "deps/spine/lua/SkeletonBounds"
 
 spine.utils.readFile = function (fileName, base)
 	local path = fileName
@@ -61,7 +61,7 @@ spine.utils.readFile = function (fileName, base)
 	return love.filesystem.read(path)
 end
 
-local json = require "lib/deps/dkjson"
+local json = require "deps/dkjson"
 spine.utils.readJSON = function (text)
 	return json.decode(text)
 end
